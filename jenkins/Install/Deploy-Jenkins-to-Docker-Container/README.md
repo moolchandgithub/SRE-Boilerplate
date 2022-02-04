@@ -248,7 +248,7 @@ The source code is available in [github repository](https://github.com/HCL-Cloud
 
 *******************************************************************************************************
 1. Build Jenkins images with Docker installed in it.
-     docker build -t jenkins:v1 Dockerfile_v2
+   docker build -f Dockerfile_v2 -t jenkins:v1 .
 
 2. Start Jenkins with local host Docker Socket
      docker run -d --name jenkins --rm -p 8080:8080 -v /home/jenkins:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock --env JENKINS_USER=admin --env JENKINS_PASS=admin jenkins:v2
@@ -256,6 +256,24 @@ The source code is available in [github repository](https://github.com/HCL-Cloud
 3. Install Docker & Docker-pipeline plugin from Jenkins GUI
 
 4. Create pipeline with docker agent for testing.
+pipeline {
+    agent { docker { image 'maven:3.8.4-openjdk-11-slim' } }
+    stages {
+        stage('build') {
+            steps {
+                sh 'mvn --version'
+            }
+        }
+    }
+}
+*********************************************************************************************
+1. If you Don't want to install Docker inside Jenkins Docker Container. You can use host docker.
+   docker build -f Dockerfile_v1 -t jenkins:v1 . 
+
+2. Start Jenkins with local host Docker Socket and local host Docker Binary.
+    docker run -d --name jenkins --rm  -p 8080:8080 -v /home/jenkins:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker --env JENKINS_USER=admin --env JENKINS_PASS=admin jenkins:v1
+
+3. Create pipeline with docker agent for testing.
 pipeline {
     agent { docker { image 'maven:3.8.4-openjdk-11-slim' } }
     stages {
